@@ -1,0 +1,200 @@
+import {Component, AfterViewInit, ViewChild, OnInit} from '@angular/core';
+import {NgForm, FormsModule} from '@angular/forms';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+
+
+
+
+
+export class AppComponent implements AfterViewInit {
+  // Fixed Value
+  numberOfBoxesX: number = 41;
+  numberOfBoxesY: number = 41;
+  boxSize: number = 100;
+  canvasWidth: number = 0;
+  canvasHeight: number = 0;
+  zoomIntensity: number = 0.1;
+  activeColor: string = '#FF5500';
+  deactColor: string = '#556666';
+
+  // Dynamic Value
+  scale: number = 1;
+  originX: number = 0;
+  originY: number = 0;
+  spaceBetweenBoxes: number = 2;
+  context: CanvasRenderingContext2D;
+  canvas: any;
+  visibleHeight = this.canvasHeight;
+  visibleWidth = this.canvasWidth;
+
+  @ViewChild('myCanvas') myCanvas;
+
+  ngAfterViewInit(): void {
+    this.canvas = this.myCanvas.nativeElement;
+    this.context = this.canvas.getContext('2d');
+    this.moveToMiddle();
+    this.drawBoxes();
+  }
+
+
+  // Drawing Function
+  drawBoxes() {
+    requestAnimationFrame(() => {
+      this.drawBoxes();
+    });
+
+    const ctx = this.context;
+    const bs = this.boxSize;
+    const sb = this.spaceBetweenBoxes * (1 / this.scale);
+
+    ctx.fillStyle = this.deactColor; // Determine color of the filled space
+    ctx.clearRect(this.originX, this.originY, 800 / this.scale, 600 / this.scale);  // To draw canvas space 
+
+    for (let i = 0; i < this.numberOfBoxesX; i++) {
+      for (let k = 0; k < this.numberOfBoxesY; k++) {
+        ctx.fillStyle = this.deactColor;
+        if (i === Math.floor(this.numberOfBoxesX / 2)) {
+          ctx.fillStyle = this.activeColor;
+        }
+        if (k === Math.floor(this.numberOfBoxesY / 2)) {
+          ctx.fillStyle = this.activeColor;
+        }
+
+        ctx.fillRect(i * bs + i * sb, k * bs + k * sb, bs, bs);
+      }
+    }
+  }
+
+  setOriginXY() {
+    const midX = (this.boxSize + this.spaceBetweenBoxes) * this.numberOfBoxesX / 2;
+    const midY = (this.boxSize + this.spaceBetweenBoxes) * this.numberOfBoxesY / 2;
+
+    const addTransX = this.canvasWidth / 2;
+    const addTransY = this.canvasHeight / 2;
+
+    this.originX = midX - addTransX;
+    this.originY = midY - addTransY;
+  }
+
+  moveToMiddle() {
+    const ctx = this.context;
+    this.setOriginXY();
+    ctx.translate(-this.originX, -this.originY);
+  }
+
+
+
+
+  // Scale Function
+  calculateMouseWheel(event: WheelEvent) {
+    event.preventDefault();
+    const ctx = this.context;
+    console.log('Start -> originX: ' + this.originX + ', originY: ' + this.originY);
+
+    // Normalize wheel to +1 or -1.
+    const wheel = event.wheelDelta / 180;
+    console.log('wheel: ' + wheel);
+
+    // Compute zoom factor.
+    const zoom = Math.exp(wheel * this.zoomIntensity);
+    console.log('zoom: ' + zoom);
+
+    // Translate so the visible origin is at the context's origin.
+    ctx.translate(this.originX, this.originY);
+
+    // Scale it (centered around the origin due to the translate above).
+    ctx.scale(zoom, zoom);
+
+
+    // Update scale and others.
+    this.scale *= zoom;
+    console.log('new scale: ' + this.scale);
+
+    // Translate context back to center of canvas
+    const newWidth = this.canvasWidth / (this.scale);
+    const newHeight = this.canvasHeight / (this.scale);
+    const changeX = Math.abs(newWidth - this.visibleWidth) / 2;
+    const changeY = Math.abs(newHeight - this.visibleHeight) / 2;
+
+    console.log('changeX: ' + changeX + ', changeY: ' + changeY);
+    if (wheel < 0) {
+      this.originX = this.originX - changeX + 15;
+      this.originY = this.originY - changeY + 15;
+    } else {
+      this.originX = this.originX + changeX - 15;
+      this.originY = this.originY + changeY - 15;
+    }
+
+    // Update new visible Width and Height
+    this.visibleWidth = newWidth;
+    this.visibleHeight = newHeight;
+
+    // Offset the visible origin to it's proper position.
+    ctx.translate(-this.originX, -this.originY);
+    console.log('Final -> originX: ' + -this.originX + ', originY: ' + -this.originY);
+
+  }
+
+
+
+  //  calculateMouseWheel(event: WheelEvent) {
+  //    event.preventDefault();
+  //    // Get mouse offset.
+  //    const mouseX = event.clientX - this.canvas.offsetLeft;
+  //    const mouseY = event.clientY - this.canvas.offsetTop;
+  //
+  //    //    console.log('clientX: ' + event.clientX + ', clientY' + event.clientY);
+  //    //    console.log('offsetLeft: ' + this.canvas.offsetLeft + ', offsetTop: ' + this.canvas.offsetLeft);
+  //    //    console.log('offsetWidth: ' + this.canvas.offsetWidth + ', offsetHeight: ' + this.canvas.offsetHeight);
+  //    console.log('mouseX: ' + mouseX + ', mouseY: ' + mouseY);
+  //
+  //    // Normalize wheel to +1 or -1.
+  //    console.log('wheelDelta: ' + event.wheelDelta);
+  //    const wheel = event.wheelDelta / 120;
+  //    console.log('wheel: ' + wheel);
+  //
+  //    // Compute zoom factor.
+  //    const zoom = Math.exp(wheel * this.zoomIntensity);
+  //    console.log('zoom: ' + zoom);
+  //
+  //    // Translate so the visible origin is at the context's origin.
+  //    this.context.translate(this.originX, this.originY);
+  //
+  //    // Compute the new visible origin. Originally the mouse is at a
+  //    // distance mouse/scale from the corner, we want the point under
+  //    // the mouse to remain in the same place after the zoom, but this
+  //    // is at mouse/new_scale away from the corner. Therefore we need to
+  //    // shift the origin (coordinates of the corner) to account for this.
+  //    this.originX -= mouseX / (this.scale * zoom) - mouseX / this.scale;
+  //    this.originY -= mouseY / (this.scale * zoom) - mouseY / this.scale;
+  //
+  //
+  //    // Scale it (centered around the origin due to the translate above).
+  //    this.context.scale(zoom, zoom);
+  //
+  //
+  //    // Offset the visible origin to it's proper position.
+  //    this.context.translate(-this.originX, -this.originY);
+  //
+  //    // Update scale and others.
+  //    this.scale *= zoom;
+  //    console.log('new scale: ' + this.scale);
+  //    const visibleWidth = this.canvasWidth / this.scale;
+  //    const visibleHeight = this.canvasHeight / this.scale;
+  //
+  //    console.log('originX:' + -this.originX + ', originY:' + -this.originY);
+  //    console.log('canvasWidth:' + this.canvasWidth + ', canvasHeight:' + this.canvasHeight);
+  //    console.log('visibileWidth:' + visibleWidth + ', visibleHeight:' + visibleHeight);
+  //
+  //  }
+
+
+
+
+
+}
