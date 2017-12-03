@@ -234,7 +234,7 @@ export class Mod1Component implements AfterViewInit, OnInit {
   setradio(e: string): void {
     this.selectedLink = e;
     let img = this.fullImagePath;
-    img = '/assets/images/';
+    img = './assets/images/';
 
     switch (e) {
       case 'none':
