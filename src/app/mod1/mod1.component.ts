@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild, AfterViewInit, } from '@angular/core';
+import {Component, OnInit, ViewChild, AfterViewInit, HostListener, } from '@angular/core';
 
 @Component({
   selector: 'app-mod1',
@@ -34,11 +34,16 @@ export class Mod1Component implements AfterViewInit, OnInit {
   context: CanvasRenderingContext2D;
   canvas: any;
   matrix: any;
+
   requestId: any = undefined;
   items: any = [this.none, this.singleBox, this.spUp, this.spDown, this.spLeft, this.spRight, this.gun45,
   this.gun135, this.gun225, this.gun315];
   selectedLink: string = undefined;
   fullImagePath = '';
+  isMobile = false;
+
+  // Detect Window Width
+  innerWidth: number;
 
   // FPS control
   then = Date.now();
@@ -59,8 +64,20 @@ export class Mod1Component implements AfterViewInit, OnInit {
   }
 
   init() {
+    this.checkIsMobile();
+
     this.matrix = this.generateMatrix();
+
     this.calculateCanvasSize();
+  }
+
+  checkIsMobile() {
+    if (window.navigator.userAgent.indexOf('Android') !== -1 ||
+      window.navigator.userAgent.indexOf('iPhone') !== -1) {
+      this.isMobile = true;
+    } else {
+      this.isMobile = false;
+    }
   }
 
   drawCanvas() {
@@ -160,24 +177,34 @@ export class Mod1Component implements AfterViewInit, OnInit {
   createTravelMock() {
     this.matrix = this.generateMatrix();
     const mtx = this.matrix;
-    this.createSpaceship(25, 70, 'up');
-    this.createSpaceship(135, 25, 'down');
-    this.createSpaceship(135, 65, 'left');
-    this.createSpaceship(45, 10, 'right');
+    if (this.isMobile) {
+      this.createSpaceship(3, 10, 'down');
+      this.createSpaceship(23, 39, 'up');
+    } else {
+      this.createSpaceship(25, 70, 'up');
+      this.createSpaceship(135, 25, 'down');
+      this.createSpaceship(135, 65, 'left');
+      this.createSpaceship(45, 10, 'right');
+    }
   }
 
   createBattleMock() {
     this.matrix = this.generateMatrix();
     const mtx = this.matrix;
-    this.createGliderGun(5, 99, 45);
-    this.createGliderGun(10, 70, 45);
-    this.createGliderGun(15, 41, 45);
-    this.createGliderGun(40, 99, 45);
+    if (this.isMobile) {
+      this.createGliderGun(0, 45, 115);
+      this.createGliderGun(0, 5, 315);
+    } else {
+      this.createGliderGun(5, 99, 45);
+      this.createGliderGun(10, 70, 45);
+      this.createGliderGun(15, 41, 45);
+      this.createGliderGun(40, 99, 45);
 
-    this.createGliderGun(145, 0, 225);
-    this.createGliderGun(140, 31, 225);
-    this.createGliderGun(135, 61, 225);
-    this.createGliderGun(110, 0, 225);
+      this.createGliderGun(145, 0, 225);
+      this.createGliderGun(140, 31, 225);
+      this.createGliderGun(135, 61, 225);
+      this.createGliderGun(110, 0, 225);
+    }
   }
 
   onClickCanvas(event: MouseEvent) {
@@ -307,6 +334,11 @@ export class Mod1Component implements AfterViewInit, OnInit {
   }
 
   generateMatrix(): any {
+    if (this.isMobile) {
+      this.numberOfX = 50;
+      this.numberOfY = 50;
+      this.boxSize = 6;
+    }
     let mtx: any;
     mtx = new Array(this.numberOfX);
     for (let x = 0; x < this.numberOfX; x++) {
