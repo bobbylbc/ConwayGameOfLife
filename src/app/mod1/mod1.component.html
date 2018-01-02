@@ -1,64 +1,55 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div class="container color-light">
-	<div class="col">
-		<h1>Conway's Game of Life</h1>
+<div class="container" #container>
+	<div class="row" #title>
+		<div class="col-lg-12">
+			<h1>Conway's Game of Life</h1>
+		</div>
 	</div>
-</div>
-<div class="container color-dark col">
-	<canvas #gameOfLife [width]="canvasWidth" [height]="canvasHeight"
-		(click)="onClickCanvas($event)"></canvas>
+	<div class="row">
+		<div class="col-lg-8">
 
-</div>
+			<canvas #gameOfLife [width]="canvasWidth" [height]="canvasHeight"
+				(click)="onClickCanvas($event)"></canvas>
+		</div>
 
-<div class="color-light">
-
-	<div class="container">
-		<div class="col">Commands</div>
-		<div class="col">
+		<div class="col-lg-4">
+			<p>Commands</p>
 
 			<input type="button" class="btn" (click)="clickNextEvent()"
 				value="Next" /> <input type="button" class="btn"
 				(click)="autoplay()" value="Autoplay" /> <input type="button"
 				class="btn" (click)="stop()" value="Stop" /> <input type="button"
-				class="btn" (click)="clearCanvas()" value="Clear" />
-		</div>
-		<div class="col">Sample Construct</div>
-		<div class="col">
+				class="btn" (click)="clearCanvas()" value="Clear" /> <br> <br>
+			<p>Sample Construct</p>
 			<input type="button" class="btn" (click)="randomSetup()"
 				value="Random Setup" /> <input type="button" class="btn"
 				(click)="battleSetup1()" value="Battle Setup" /> <input
 				type="button" class="btn" (click)="travelSetup()"
-				value="Travel Setup" />
-		</div>
-	</div>
-
-	<div class="container color-dark col">
-		Speed <input type="range" min=1 max=60 [value]="fps" [(ngModel)]="fps">
-	</div>
-
-	<div class="container col">Select an item for construction</div>
-
-	<div class="container">
-		<div class="col">
-			<div *ngFor="let item of items; let i = index">
-				<div class="radio">
-					<label> <input type="radio" name="gender" [value]="item"
-						(click)="setradio(item)" [checked]="i === 0"> {{ item }}
-					</label>
+				value="Travel Setup" /> <br> <br> Speed <input
+				type="range" min=1 max=60 [value]="fps" [(ngModel)]="fps"> <br>
+			<br>
+			<div class="row">
+				<div class="col-lg-6">
+					<p>Select an item for construction</p>
+					<div *ngFor="let item of items; let i = index" class="col">
+						<div class="radio">
+							<label> <input type="radio" name="gender" [value]="item"
+								(click)="setradio(item)" [checked]="i === 0"> {{ item }}
+							</label>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
-		<div class="col">
-			<div *ngFor="let item of items;">
-				<div *ngIf="isSelected(item)">
-					<div class="col">{{ item }}</div>
-					<div class="col">
-						<img [src]="fullImagePath" class="img-container">
+				<div class="col-lg-6">
+					<div *ngFor="let item of items;" class="col">
+						<div *ngIf="isSelected(item)">
+							<div>{{ item }}</div>
+							<div>
+								<img [src]="fullImagePath" class="img-container">
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
-
-

@@ -15,14 +15,14 @@ export class Mod1Component implements AfterViewInit, OnInit {
   gun135: string = 'glider gun shoot 135'; gun315: string = 'glider gun shoot 315';
   gun225: string = 'glider gun shoot 225'; gun45: string = 'glider gun shoot 45';
 
-  numberOfX: number = 180;
-  numberOfY: number = 100;
-  boxSize: number = 4;
+  numberOfX: number = 120;
+  numberOfY: number = 120;
+  boxSize: number = 5;
   spaceBetweenBoxes: number = 1;
   canvasWidth: number = 0;
   canvasHeight: number = 0;
   activeColor: string = '#98FB98';
-  deactColor: string = '#113311';
+  deactColor: string = '#3b4649';
 
   currentFactor: number = 0;
   MAX_SCALE: number = 4;
@@ -34,6 +34,8 @@ export class Mod1Component implements AfterViewInit, OnInit {
   context: CanvasRenderingContext2D;
   canvas: any;
   matrix: any;
+  container: any;
+  title: any;
 
   requestId: any = undefined;
   items: any = [this.none, this.singleBox, this.spUp, this.spDown, this.spLeft, this.spRight, this.gun45,
@@ -50,6 +52,8 @@ export class Mod1Component implements AfterViewInit, OnInit {
   fps = 5;
 
   @ViewChild('gameOfLife') myCanvas;
+  @ViewChild('container') myContainer;
+  @ViewChild('title') myTitle;
 
   ngOnInit() {
     this.init();
@@ -59,6 +63,8 @@ export class Mod1Component implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
     this.canvas = this.myCanvas.nativeElement;
     this.context = this.canvas.getContext('2d');
+    this.container = this.myContainer.nativeElement;
+    this.myTitle = this.myTitle.nativeElement;
     this.currentFactor = -1; // Set to -1, to trigger function scaleCanvas
     this.scaleCanvas();
   }
@@ -212,10 +218,8 @@ export class Mod1Component implements AfterViewInit, OnInit {
     if (selected === undefined) {
       return;
     } else {
-      console.log('pageX: ' + event.pageX + ', pageY: ' + event.pageY);
-      console.log('offsetLeft: ' + this.canvas.offsetLeft + ', offsetTop: ' + this.canvas.offsetTop);
-      const x = this.getCell(event.pageX - this.canvas.offsetLeft);
-      const y = this.getCell(event.pageY - this.canvas.offsetTop);
+      const x = this.getCell(event.pageX - this.canvas.offsetLeft - this.container.offsetLeft);
+      const y = this.getCell(event.pageY - this.canvas.offsetTop - this.myTitle.offsetHeight);
       console.log('x: ' + x + ', y: ' + y);
 
       if (selected === this.singleBox) {
